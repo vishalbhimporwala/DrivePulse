@@ -2,4 +2,9 @@ package com.drivepulse.gps
 
 import androidx.compose.ui.window.ComposeUIViewController
 
-fun MainViewController() = ComposeUIViewController { App() }
+fun MainViewController(): platform.UIKit.UIViewController {
+    val speedLocationProvider = IosSpeedLocationProvider()
+    return ComposeUIViewController {
+        App(speedLocationProvider = speedLocationProvider)
+    }
+}

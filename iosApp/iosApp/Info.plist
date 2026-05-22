@@ -4,5 +4,14 @@
 <dict>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>DrivePulse uses your location to show your current position, live speed, traffic context, and active trip route.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>DrivePulse uses background location only when you start trip recording, so your route, distance, and driving stats remain accurate while the app is not open.</string>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+		<key>PreciseDrivingLocation</key>
+		<string>Precise location improves speed accuracy, trip distance, and route recording.</string>
+	</dict>
 </dict>
 </plist>

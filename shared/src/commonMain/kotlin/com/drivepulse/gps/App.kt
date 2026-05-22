@@ -1,48 +1,81 @@
 package com.drivepulse.gps
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.safeContentPadding
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import org.jetbrains.compose.resources.painterResource
-
-import drivepulse.shared.generated.resources.Res
-import drivepulse.shared.generated.resources.compose_multiplatform
+import com.drivepulse.gps.design.AppBg
+import com.drivepulse.gps.design.DrivePulseTheme
+import com.drivepulse.gps.features.map.MapScreen
+import com.drivepulse.gps.features.settings.SettingsScreen
+import com.drivepulse.gps.features.speed.PreviewSpeedLocationProvider
+import com.drivepulse.gps.features.speed.SpeedLocationProvider
+import com.drivepulse.gps.features.speed.SpeedScreen
+import com.drivepulse.gps.features.tools.ToolsScreen
+import com.drivepulse.gps.features.trips.TripsScreen
+import com.drivepulse.gps.navigation.DrivePulseBottomBar
+import com.drivepulse.gps.navigation.DrivePulseTab
 
 @Composable
 @Preview
-fun App() {
-    MaterialTheme {
-        var showContent by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .safeContentPadding()
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Button(onClick = { showContent = !showContent }) {
-                Text("Click me!")
+fun App(
+    speedLocationProvider: SpeedLocationProvider = PreviewSpeedLocationProvider,
+) {
+    DrivePulseTheme {
+        DrivePulseApp(speedLocationProvider = speedLocationProvider)
+    }
+}
+
+@Composable
+private fun DrivePulseApp(speedLocationProvider: SpeedLocationProvider) {
+    var selectedTab by remember { mutableStateOf(DrivePulseTab.Map) }
+    var isSpeedFullScreen by remember { mutableStateOf(false) }
+    val showSpeedFullScreen = selectedTab == DrivePulseTab.Speed && isSpeedFullScreen
+
+    Scaffold(
+        containerColor = AppBg,
+        bottomBar = {
+            if (!showSpeedFullScreen) {
+                DrivePulseBottomBar(
+                    selectedTab = selectedTab,
+                    onTabSelected = {
+                        selectedTab = it
+                        isSpeedFullScreen = false
+                    },
+                )
             }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("Compose: $greeting")
-                }
+        },
+    ) { contentPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(if (showSpeedFullScreen) PaddingValues() else contentPadding)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(Color(0xFF0D141B), AppBg, Color(0xFF05070A)),
+                    ),
+                ),
+        ) {
+            when (selectedTab) {
+                DrivePulseTab.Map -> MapScreen()
+                DrivePulseTab.Speed -> SpeedScreen(
+                    speedLocationProvider = speedLocationProvider,
+                    onFullScreenChanged = { isSpeedFullScreen = it },
+                )
+                DrivePulseTab.Trips -> TripsScreen()
+                DrivePulseTab.Tools -> ToolsScreen()
+                DrivePulseTab.Settings -> SettingsScreen()
             }
         }
     }
